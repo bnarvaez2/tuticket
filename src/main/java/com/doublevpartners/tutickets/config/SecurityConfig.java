@@ -50,12 +50,12 @@ public class SecurityConfig {
         .authenticationEntryPoint((request, response, authException) -> {
           response.setStatus(HttpStatus.UNAUTHORIZED.value());
           response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-          response.getWriter().write("{\"message\": \"Autenticación requerida para acceder a este recurso.\"}");
+          response.getWriter().write("{\"message\": \"Authentication required to access this resource.\"}");
         })
         .accessDeniedHandler((request, response, accessDeniedException) -> {
           response.setStatus(HttpStatus.FORBIDDEN.value());
           response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-          response.getWriter().write("{\"message\": \"No tienes permisos para acceder a este recurso.\"}");
+          response.getWriter().write("{\"message\": \"You do not have permission to access this resource.\"}");
         }))
       .sessionManagement(session -> session
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
