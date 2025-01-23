@@ -22,12 +22,16 @@
    ```bash
    git clone https://github.com/bnarvaez2/tuticket.git
 
-2. **Construye el proyecto con Maven**:
+2. **Navegar al directorio del proyecto (Windows)**:
+   ```bash
+   cd tuticket
+   
+4. **Construye el proyecto con Maven**:
    
     ```bash
     mvn clean install
     ```
-3. **Despliegue en local**:
+5. **Despliegue en local**:
    
     ```bash
     mvn spring-boot:run
