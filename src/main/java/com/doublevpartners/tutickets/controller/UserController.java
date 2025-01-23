@@ -31,8 +31,8 @@ public class UserController {
   @Operation(summary = "Create a new user")
   @PostMapping
   public ResponseEntity<String> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-    userService.createUser(userRequestDTO);
-    return ResponseEntity.status(HttpStatus.CREATED).body(USER_CREATED_SUCCESSFULLY);
+    UUID userId = userService.createUser(userRequestDTO);
+    return ResponseEntity.status(HttpStatus.CREATED).body(USER_CREATED_SUCCESSFULLY + " User ID: " + userId);
   }
 
   @Operation(summary = "Update an existing user by ID")

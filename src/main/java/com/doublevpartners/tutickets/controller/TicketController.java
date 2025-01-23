@@ -40,8 +40,9 @@ public class TicketController {
   @PostMapping
   public ResponseEntity<String> createTicket(
     @Valid @RequestBody TicketRequestDTO ticketRequestDTO) {
-    ticketService.createTicket(ticketRequestDTO);
-    return ResponseEntity.status(HttpStatus.CREATED).body(TICKET_CREATED_SUCCESSFULLY);
+    UUID ticketId = ticketService.createTicket(ticketRequestDTO);
+    return ResponseEntity.status(HttpStatus.CREATED)
+      .body(TICKET_CREATED_SUCCESSFULLY + " Ticket ID: " + ticketId);
   }
 
   @Operation(summary = "Update an existing ticket by ID")

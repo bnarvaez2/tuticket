@@ -22,9 +22,9 @@ public class UserServiceImpl implements UserService {
     this.userFacade = userFacade;
   }
 
-  public void createUser(UserRequestDTO user) {
+  public UUID createUser(UserRequestDTO user) {
     UserEntity userEntity = UserMapper.INSTANCE.toEntity(user);
-    userFacade.saveUser(userEntity);
+    return userFacade.saveUser(userEntity).getId();
   }
 
   public void updateUser(UUID id, UserRequestDTO userDetails) {

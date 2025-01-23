@@ -30,11 +30,11 @@ public class TicketServiceImpl implements TicketService {
   private final TicketFacade ticketFacade;
   private final UserService userService;
 
-  public void createTicket(TicketRequestDTO ticket) {
+  public UUID createTicket(TicketRequestDTO ticket) {
     UserResponseDTO userDTO = userService.getUserById(UUID.fromString(ticket.getUserId()));
     UserEntity userEntity = UserMapper.INSTANCE.toEntity(userDTO);
     TicketEntity ticketEntity = TicketMapper.INSTANCE.toEntity(ticket, userEntity);
-    ticketFacade.saveTicket(ticketEntity);
+    return ticketFacade.saveTicket(ticketEntity).getId();
   }
 
   public void updateTicket(UUID id, TicketRequestDTO ticketDetails) {

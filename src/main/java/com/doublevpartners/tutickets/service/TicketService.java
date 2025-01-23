@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface TicketService {
 
-  void createTicket(TicketRequestDTO ticket);
+  UUID createTicket(TicketRequestDTO ticket);
 
   void updateTicket(UUID id, TicketRequestDTO ticketDetails);
 
