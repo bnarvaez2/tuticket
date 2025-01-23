@@ -90,6 +90,7 @@ public class TicketServiceImpl implements TicketService {
   }
 
   public List<TicketResponseDTO> getTicketsByStatusAndUser(EstatusEnum estatus, UUID userId) {
+    userService.getUserById(userId);
     List<TicketEntity> tickets = ticketFacade.findTicketsByStatusAndUser(estatus, userId);
 
     return TicketMapper.INSTANCE.toResponseDTO(tickets);

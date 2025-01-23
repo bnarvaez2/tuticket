@@ -23,6 +23,10 @@ public class Constants {
   public static final String NAME_TOO_LARGE = "name must not exceed " + MAX_CHARACTER + " characters";
   public static final String LASTNAME_IS_REQUIRED = "lastname is required";
   public static final String LASTNAME_TOO_LARGE = "lastname must not exceed " + MAX_CHARACTER + " characters";
+  public static final String PAGE_NUMBER_GREATER_THAN_TO_0 = "Page number must be greater than or equal to 0";
+  public static final String PAGE_SIZE_GREATER_THAN_TO_1 = "Page size must be greater than or equal to 1";
+  public static final String PASSWORD_IS_REQUIRED = "password is required";
+  public static final String USERNAME_IS_REQUIRED = "username is required";
   public static final String USER_NOT_FOUND_WITH_ID = "User not found with id: ";
   public static final String USER_CREATED_SUCCESSFULLY = "User created successfully.";
   public static final String USER_UPDATED_SUCCESSFULLY = "User updated successfully.";

@@ -1,5 +1,7 @@
 package com.doublevpartners.tutickets.controller;
 
+import static com.doublevpartners.tutickets.util.Constants.PAGE_NUMBER_GREATER_THAN_TO_0;
+import static com.doublevpartners.tutickets.util.Constants.PAGE_SIZE_GREATER_THAN_TO_1;
 import static com.doublevpartners.tutickets.util.Constants.PATH_ESTATUS;
 import static com.doublevpartners.tutickets.util.Constants.PATH_TICKETS;
 import static com.doublevpartners.tutickets.util.Constants.PATH_USER;
@@ -16,8 +18,14 @@ import com.doublevpartners.tutickets.dto.response.TicketResponseDTO;
 import com.doublevpartners.tutickets.service.TicketService;
 import com.doublevpartners.tutickets.util.EstatusEnum;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +45,10 @@ public class TicketController {
   }
 
   @Operation(summary = "Create a new ticket")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Ticket created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+  })
   @PostMapping
   public ResponseEntity<String> createTicket(
     @Valid @RequestBody TicketRequestDTO ticketRequestDTO) {
@@ -46,6 +58,11 @@ public class TicketController {
   }
 
   @Operation(summary = "Update an existing ticket by ID")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Ticket updated", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+    @ApiResponse(responseCode = "404", description = "Ticket not found", content = @Content),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+  })
   @PutMapping(PATH_VARIABLE_ID)
   public ResponseEntity<String> updateTicket(
     @PathVariable UUID id,
@@ -55,6 +72,10 @@ public class TicketController {
   }
 
   @Operation(summary = "Delete a tickets by ID")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Ticket deleted", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+    @ApiResponse(responseCode = "404", description = "Ticket not found", content = @Content)
+  })
   @DeleteMapping(PATH_VARIABLE_ID)
   public ResponseEntity<String> deleteTicket(@PathVariable UUID id) {
     ticketService.deleteTicket(id);
@@ -62,6 +83,10 @@ public class TicketController {
   }
 
   @Operation(summary = "Get a ticket by ID")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Ticket found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponseDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Ticket not found", content = @Content)
+  })
   @GetMapping(PATH_VARIABLE_ID)
   public ResponseEntity<TicketResponseDTO> getTicketById(@PathVariable UUID id) {
     TicketResponseDTO ticket = ticketService.getTicketById(id);
@@ -69,8 +94,17 @@ public class TicketController {
   }
 
   @Operation(summary = "Get all tickets with pagination")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Get all tickets", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PageResponseDTO.class))),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+  })
   @GetMapping
-  public ResponseEntity<PageResponseDTO<TicketResponseDTO>> getAllTickets(Pageable pageable) {
+  public ResponseEntity<PageResponseDTO<TicketResponseDTO>> getAllTickets(
+    @RequestParam(name = "page", defaultValue = "0")
+    @Min(value = 0, message = PAGE_NUMBER_GREATER_THAN_TO_0) int page,
+    @RequestParam(name = "size", defaultValue = "50")
+    @Min(value = 1, message = PAGE_SIZE_GREATER_THAN_TO_1) int size) {
+    Pageable pageable = PageRequest.of(page, size);
     PageResponseDTO<TicketResponseDTO> tickets = ticketService.getAllTickets(pageable);
     return ResponseEntity.ok(tickets);
   }
@@ -84,6 +118,10 @@ public class TicketController {
   }
 
   @Operation(summary = "Get all tickets by user ID")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Tickets found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
+    @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+  })
   @GetMapping(PATH_USER + PATH_VARIABLE_USER_ID)
   public ResponseEntity<List<TicketResponseDTO>> getTicketsByUser(@PathVariable UUID userId) {
     List<TicketResponseDTO> tickets = ticketService.getTicketsByUser(userId);
@@ -91,6 +129,10 @@ public class TicketController {
   }
 
   @Operation(summary = "Get all tickets by estatus and user ID")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Tickets found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
+    @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+  })
   @GetMapping(PATH_ESTATUS + PATH_VARIABLE_ESTATUS + PATH_USER + PATH_VARIABLE_USER_ID)
   public ResponseEntity<List<TicketResponseDTO>> getTicketsByStatusAndUser(
     @PathVariable EstatusEnum estatus,

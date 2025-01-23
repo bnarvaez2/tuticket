@@ -8,6 +8,10 @@ import com.doublevpartners.tutickets.dto.request.UserRequestDTO;
 import com.doublevpartners.tutickets.dto.response.UserResponseDTO;
 import com.doublevpartners.tutickets.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +33,10 @@ public class UserController {
   }
 
   @Operation(summary = "Create a new user")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "User created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+  })
   @PostMapping
   public ResponseEntity<String> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
     UUID userId = userService.createUser(userRequestDTO);
@@ -36,6 +44,11 @@ public class UserController {
   }
 
   @Operation(summary = "Update an existing user by ID")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "User updated", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+    @ApiResponse(responseCode = "404", description = "User not found", content = @Content),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+  })
   @PutMapping(PATH_VARIABLE_ID)
   public ResponseEntity<String> updateUser(
     @PathVariable UUID id,
@@ -52,6 +65,10 @@ public class UserController {
   }
 
   @Operation(summary = "Get a user by ID")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "User found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDTO.class))),
+    @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+  })
   @GetMapping(PATH_VARIABLE_ID)
   public ResponseEntity<UserResponseDTO> getUserById(@PathVariable UUID id) {
     UserResponseDTO user = userService.getUserById(id);
