@@ -1,7 +1,6 @@
 package com.doublevpartners.tutickets.controller;
 
-import static com.doublevpartners.tutickets.util.Constants.PAGE_NUMBER_GREATER_THAN_TO_0;
-import static com.doublevpartners.tutickets.util.Constants.PAGE_SIZE_GREATER_THAN_TO_1;
+import static com.doublevpartners.tutickets.util.Constants.PAGE_NUMBER_AND_PAGE_SIZE_SHOULD_BE_NUMBERS;
 import static com.doublevpartners.tutickets.util.Constants.PATH_ESTATUS;
 import static com.doublevpartners.tutickets.util.Constants.PATH_TICKETS;
 import static com.doublevpartners.tutickets.util.Constants.PATH_USER;
@@ -11,10 +10,12 @@ import static com.doublevpartners.tutickets.util.Constants.PATH_VARIABLE_USER_ID
 import static com.doublevpartners.tutickets.util.Constants.TICKET_CREATED_SUCCESSFULLY;
 import static com.doublevpartners.tutickets.util.Constants.TICKET_DELETED_SUCCESSFULLY;
 import static com.doublevpartners.tutickets.util.Constants.TICKET_UPDATED_SUCCESSFULLY;
+import static com.doublevpartners.tutickets.util.NumberValidatorUtil.isNumber;
 
 import com.doublevpartners.tutickets.dto.request.TicketRequestDTO;
 import com.doublevpartners.tutickets.dto.response.PageResponseDTO;
 import com.doublevpartners.tutickets.dto.response.TicketResponseDTO;
+import com.doublevpartners.tutickets.exception.BadRequestException;
 import com.doublevpartners.tutickets.service.TicketService;
 import com.doublevpartners.tutickets.util.EstatusEnum;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +25,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -100,11 +100,12 @@ public class TicketController {
   })
   @GetMapping
   public ResponseEntity<PageResponseDTO<TicketResponseDTO>> getAllTickets(
-    @RequestParam(name = "page", defaultValue = "0")
-    @Min(value = 0, message = PAGE_NUMBER_GREATER_THAN_TO_0) int page,
-    @RequestParam(name = "size", defaultValue = "50")
-    @Min(value = 1, message = PAGE_SIZE_GREATER_THAN_TO_1) int size) {
-    Pageable pageable = PageRequest.of(page, size);
+    @RequestParam(name = "page", defaultValue = "0", required = false) String page,
+    @RequestParam(name = "size", defaultValue = "50", required = false) String size) {
+    if (!isNumber(page) || !isNumber(size))
+      throw new BadRequestException(PAGE_NUMBER_AND_PAGE_SIZE_SHOULD_BE_NUMBERS);
+
+    Pageable pageable = PageRequest.of(Integer.parseInt(page), Integer.parseInt(size));
     PageResponseDTO<TicketResponseDTO> tickets = ticketService.getAllTickets(pageable);
     return ResponseEntity.ok(tickets);
   }
