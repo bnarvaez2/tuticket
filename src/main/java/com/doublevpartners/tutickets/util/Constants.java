@@ -13,6 +13,7 @@ public class Constants {
   public static final String PATH_ESTATUS = INCLINED_BAR + "estatus";
   public static final String PATH_VARIABLE_ESTATUS = INCLINED_BAR + "{estatus}";
   public static final String PATH_VARIABLE_USER_ID = INCLINED_BAR + "{userId}";
+  public static final String PATH_AUTH = INCLINED_BAR + "auth";
   public static final String PATH_TICKETS = INCLINED_BAR + API_VERSION + INCLINED_BAR + API + INCLINED_BAR + "tickets";
   public static final String UUID_REGEX = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
   public static final String NAME_IS_REQUIRED = "name is required";
