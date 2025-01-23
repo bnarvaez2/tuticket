@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
+import java.util.List;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -25,6 +26,12 @@ public class JwtUtil {
     return extractClaim(token, Claims::getExpiration);
   }
 
+  public List<String> extractRoles(String token) {
+    Claims claims = extractAllClaims(token);
+    List<?> roles = claims.get("roles", List.class);
+    return roles.stream().map(String.class::cast).toList();
+  }
+
   public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
     final Claims claims = extractAllClaims(token);
     return claimsResolver.apply(claims);
@@ -42,8 +49,10 @@ public class JwtUtil {
     return extractExpiration(token).before(new Date());
   }
 
-  public String generateToken(String username) {
+  public String generateToken(String username, List<String> roles) {
     Map<String, Object> claims = new HashMap<>();
+    claims.put("roles", roles);
+
     return createToken(claims, username);
   }
 

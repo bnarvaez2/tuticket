@@ -1,10 +1,12 @@
 package com.doublevpartners.tutickets.filter;
 
 import com.doublevpartners.tutickets.util.JwtUtil;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -18,25 +20,16 @@ import java.io.IOException;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-  private final UserDetailsService userDetailsService;
   private final JwtUtil jwtUtil;
 
-  public JwtRequestFilter(UserDetailsService userDetailsService, JwtUtil jwtUtil) {
-    this.userDetailsService = userDetailsService;
+  public JwtRequestFilter(JwtUtil jwtUtil) {
     this.jwtUtil = jwtUtil;
   }
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+    FilterChain chain)
     throws ServletException, IOException {
-
-    final String path = request.getRequestURI();
-
-    if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs") || path.equals("/authenticate")) {
-      chain.doFilter(request, response);
-      return;
-    }
-
     final String authorizationHeader = request.getHeader("Authorization");
 
     String username = null;
@@ -47,20 +40,20 @@ public class JwtRequestFilter extends OncePerRequestFilter {
       username = jwtUtil.extractUsername(jwt);
     }
 
-    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-      UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null
+      && Boolean.TRUE.equals(jwtUtil.validateToken(jwt, username))) {
+      List<String> roles = jwtUtil.extractRoles(jwt);
 
-      if (Boolean.TRUE.equals(jwtUtil.validateToken(jwt, userDetails.getUsername()))) {
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-          userDetails, null, userDetails.getAuthorities());
-        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-      }
+      List<GrantedAuthority> authorities = roles.stream()
+        .map(SimpleGrantedAuthority::new)
+        .collect(Collectors.toList());
+
+      UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+        username, null, authorities);
+      authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+      SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 
     chain.doFilter(request, response);
   }
-
 }
-
-

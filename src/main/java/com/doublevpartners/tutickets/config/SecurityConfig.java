@@ -1,8 +1,16 @@
 package com.doublevpartners.tutickets.config;
+import static com.doublevpartners.tutickets.util.Constants.PATH_ADMIN;
+import static com.doublevpartners.tutickets.util.Constants.PATH_API_DOCS;
+import static com.doublevpartners.tutickets.util.Constants.PATH_AUTH;
+import static com.doublevpartners.tutickets.util.Constants.PATH_SWAGGER;
+import static com.doublevpartners.tutickets.util.Constants.PATH_TICKETS;
+import static com.doublevpartners.tutickets.util.Constants.PATH_VARIABLE_ID;
+
 import com.doublevpartners.tutickets.filter.JwtRequestFilter;
 import com.doublevpartners.tutickets.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,11 +42,8 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
       .authorizeHttpRequests(auth -> auth
-        .requestMatchers(
-          "/auth",
-          "/swagger-ui/**",
-          "/v3/api-docs/**"
-        ).permitAll()
+        .requestMatchers(PATH_AUTH, PATH_AUTH + PATH_ADMIN, PATH_SWAGGER, PATH_API_DOCS).permitAll()
+        .requestMatchers(HttpMethod.DELETE, PATH_TICKETS + PATH_VARIABLE_ID).hasRole("ADMIN")
         .anyRequest().authenticated()
       )
       .exceptionHandling(exceptions -> exceptions
@@ -58,8 +63,6 @@ public class SecurityConfig {
     return http.build();
   }
 
-
-
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
@@ -73,15 +76,21 @@ public class SecurityConfig {
   @Bean
   public UserDetailsService userDetailsService() {
     UserDetails user = User.withUsername("brian712")
-      .password(passwordEncoder().encode("S3cur3P@ssw0rd!2025"))
+      .password(passwordEncoder().encode("U53rP@ssw0rd!2025"))
       .roles("USER")
       .build();
-    return new InMemoryUserDetailsManager(user);
+
+    UserDetails admin = User.withUsername("adminUser")
+      .password(passwordEncoder().encode("Adm1nP@ssw0rd!2025"))
+      .roles("ADMIN")
+      .build();
+
+    return new InMemoryUserDetailsManager(user, admin);
   }
 
   @Bean
   public JwtRequestFilter jwtRequestFilter() {
-    return new JwtRequestFilter(userDetailsService(), jwtUtil);
+    return new JwtRequestFilter(jwtUtil);
   }
 }
 
